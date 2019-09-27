@@ -1,16 +1,11 @@
-const backdrop = document.querySelector('.backdrop');
-const sideDrawer = document.querySelector('.mobile-nav');
-const menuToggle = document.querySelector('#side-menu-toggle');
+// MOBILE MENU
+const menuShow = document.querySelector('.hamburguer_menu');
+const menuHide = document.querySelector('.mobile_menu_close');
+const menu = document.querySelector('.nav_links_wrapper');
 
-function backdropClickHandler() {
-  backdrop.style.display = 'none';
-  sideDrawer.classList.remove('open');
-}
-
-function menuToggleClickHandler() {
-  backdrop.style.display = 'block';
-  sideDrawer.classList.add('open');
-}
-
-backdrop.addEventListener('click', backdropClickHandler);
-menuToggle.addEventListener('click', menuToggleClickHandler);
+menuShow.addEventListener('click', function () {
+    menu.setAttribute('mobile-show', 'true');
+});
+menuHide.addEventListener('click', function () {
+    menu.setAttribute('mobile-show', 'false');
+});
