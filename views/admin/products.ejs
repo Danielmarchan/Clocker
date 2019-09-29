@@ -6,7 +6,10 @@
         <%- include('../includes/navigation.ejs') %>
 
             <main>
+
                 <% if (prods.length > 0) { %>
+                    <a href="/admin/add-product" class="btn">Add Product</a>
+                    <br>
                     <div class="grid">
                         <% for (let product of prods) { %>
                             <article class="card product-item">
@@ -37,6 +40,8 @@
                     </div>
                     <% } else { %>
                         <h1>No Products Found!</h1>
+
+                        <a href="/admin/add-product" class="btn">Add Product</a>
                         <% } %>
             </main>
             <%- include('../includes/end.ejs') %>

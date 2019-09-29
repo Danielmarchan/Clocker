@@ -7,7 +7,6 @@ html {
 }
 body {
     margin: 0;
-    height: 5000px;
     font-family: 'Lato', sans-serif;
 }
 main {
@@ -19,7 +18,21 @@ h1, h2, h3, h4, h5, h6 {
 .mobile_only {
     display: none;
 }
-
+.btn {
+    background: #fff;
+    color: #000;
+    text-decoration: none;
+    padding: 15px 45px;
+    text-transform: uppercase;
+    border: 2px solid #000;
+    display: inline-block;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.btn:hover {
+    background: #000;
+    color: #fff;
+}
 /* HEADER */
 header.top_header {
     display: flex;
@@ -105,7 +118,39 @@ li.nav_link a:hover {
 .user_dropdown ul li.nav_link {
     margin-bottom: 15px;
 }
+.top-bar {
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    text-transform: uppercase;
+}
 
+/* HOMEPAGE */
+section#hero {
+    background-image: url(/images/uploads/herobg.jpg);
+    text-align: center;
+    padding: 50px 25px;
+    height: 500px;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+#hero .content-box h2 {
+    font-size: 3.5rem;
+    text-transform: uppercase;
+    font-family: 'Libre Baskerville', serif;
+    text-shadow: 0 0 10px rgba(0, 0, 0);
+}
+#hero .content-box p {
+    font-size: 1.5rem;
+    text-shadow: 0 0 10px rgba(0, 0, 0);
+}
+#hero .content-box .btn {
+    margin-top: 15px;
+}
 
 /* RESPONSIVENESS */
 /* MIN WIDTH */
@@ -133,6 +178,7 @@ li.nav_link a:hover {
     .nav_wrapper {
         order: 2;
         margin: 0 0 0 auto;
+        padding: 0;
     }
     .nav_links_wrapper {
         display: none;
@@ -150,8 +196,9 @@ li.nav_link a:hover {
         display: none;
     }
     .nav_links_wrapper > div {
-        background: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.95);
         padding: 50px 25px;
+        height: 100vh;
     }
     .mobile_menu_close {
         display: block;

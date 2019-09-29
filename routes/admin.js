@@ -12,7 +12,7 @@ const router = express.Router();
 router.get('/add-product', isAuth, adminController.getAddProduct);
 
 // /admin/products => GET
-router.get('/products', isAuth, adminController.getProducts);
+router.get('/', isAuth, adminController.getProducts);
 
 // /admin/add-product => POST
 router.post(
@@ -20,11 +20,9 @@ router.post(
   [
     body('title')
       .isString()
-      .isLength({ min: 3 })
       .trim(),
     body('price').isFloat(),
     body('description')
-      .isLength({ min: 5, max: 400 })
       .trim()
   ],
   isAuth,

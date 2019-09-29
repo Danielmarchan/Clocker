@@ -29,7 +29,7 @@ const fileStorage = multer.diskStorage({
     cb(null, 'images');
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + '-' + file.originalname);
+    cb(null, new Date().toDateString() + '-' + file.originalname);
   }
 });
 
@@ -64,12 +64,13 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: store
-  })
+})
 );
 
 app.use(flash());
 
 app.use((req, res, next) => {
+
   res.locals.isAuthenticated = req.session.isLoggedIn;
   next();
 });
@@ -111,10 +112,12 @@ app.use(errorController.get404);
 app.use((error, req, res, next) => {
   // res.status(error.httpStatusCode).render(...);
   // res.redirect('/500');
+  console.log(error);
   res.status(500).render('500', {
     pageTitle: 'Error!',
     path: '/500',
-    isAuthenticated: req.session.isLoggedIn
+    isAuthenticated: res.locals.isAuthenticated,
+    message: error.toString()
   });
 });
 
