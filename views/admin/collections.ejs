@@ -1,0 +1,71 @@
+<%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/collection.css">
+    </head>
+
+    <body>
+        <%- include('../includes/admin-nav.ejs') %>
+
+            <main>
+
+                <h1 class="under-left">Collections</h1>
+
+                <% if (collections.length > 0) { %>
+
+                <form class="product-form" action="/admin/add-collection" method="POST" enctype="multipart/form-data">
+                    <div class="form-control">
+                        <input
+                            placeholder="Collection Title"
+                            class="<%= validationErrors.find(e => e.param === 'title') ? 'invalid' : '' %>"
+                            type="text"
+                            name="title"
+                            id="title"
+                        >
+                    </div>
+
+
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn" type="submit">Add Collection</button>
+                </form>
+                    <div class="list">
+                        <% for (let collection of collections) { %>
+
+                                <% if (collection._id == '5d9401dadd19da97d06306c6') { %>
+                                <% } else {%>
+                                    <article class="item collection-item">
+                                        <div class="item_header">
+                                            <h2 class="collection__title">
+                                                <%= collection.title %>
+                                            </h2>
+                                        </div>
+
+                                        <div class="actions">
+                                            <input type="hidden" value="<%= collection._id %>" name="collectionId">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <button class="btn sm-btn" type="button" onclick="deleteCollection(this)">Delete</button>
+                                        </div>
+                                    </article>
+                                <% } %>
+                            <% } %>
+                    </div>
+                    <% } else { %>
+                        <h2>No Collections Found!</h2>
+
+                        <form class="product-form" action="/admin/add-collection" method="POST" enctype="multipart/form-data">
+                            <div class="form-control">
+                                <input
+                                    placeholder="Collection Title"
+                                    class="<%= validationErrors.find(e => e.param === 'title') ? 'invalid' : '' %>"
+                                    type="text"
+                                    name="title"
+                                    id="title"
+                                >
+                            </div>
+
+
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button class="btn" type="submit">Add Collection</button>
+                        </form>
+                        <% } %>
+            </main>
+            <%- include('../includes/end.ejs') %>
+            <script src="/js/admin.js"></script>

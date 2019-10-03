@@ -3,43 +3,44 @@
     </head>
 
     <body>
-        <%- include('../includes/navigation.ejs') %>
+        <%- include('../includes/admin-nav.ejs') %>
 
             <main>
-
+                <h1 class="under-left">Products</h1>
                 <% if (prods.length > 0) { %>
                     <a href="/admin/add-product" class="btn">Add Product</a>
-                    <br>
-                    <div class="grid">
+                    <div class="list">
                         <% for (let product of prods) { %>
-                            <article class="card product-item">
-                                <header class="card__header">
-                                    <h1 class="product__title">
-                                        <%= product.title %>
-                                    </h1>
-                                </header>
-                                <div class="card__image">
-                                    <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
+                                <div class="item product-item">
+                                        <div class="item_image">
+                                            <a href="/admin/edit-product/<%= product._id %>?edit=true">
+                                                <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
+                                            </a>
+                                        </div>
+                                        <div class="item_header">
+                                            <h2 class="product_title">
+                                                <a href="/admin/edit-product/<%= product._id %>?edit=true">
+                                                    <%= product.title %>
+                                                </a>
+                                            </h2>
+                                        </div>
+                                        <div class="item_content">
+                                            <strong class="product_price">
+                                                $<%= product.price %>
+                                            </strong>
+                                        </div>
+                                    <div class="actions">
+
+                                        <a href="/admin/edit-product/<%= product._id %>?edit=true" class="btn sm-btn" >Edit</a>
+                                        <input type="hidden" value="<%= product._id %>" name="productId">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <button class="btn sm-btn" type="button" onclick="deleteProduct(this)">Delete</button>
+                                    </div>
                                 </div>
-                                <div class="card__content">
-                                    <h2 class="product__price">$
-                                        <%= product.price %>
-                                    </h2>
-                                    <p class="product__description">
-                                        <%= product.description %>
-                                    </p>
-                                </div>
-                                <div class="card__actions">
-                                    <a href="/admin/edit-product/<%= product._id %>?edit=true" class="btn">Edit</a>
-                                    <input type="hidden" value="<%= product._id %>" name="productId">
-                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                                    <button class="btn" type="button" onclick="deleteProduct(this)">Delete</button>
-                                </div>
-                            </article>
                             <% } %>
                     </div>
                     <% } else { %>
-                        <h1>No Products Found!</h1>
+                        <h2>No Products Found!</h2>
 
                         <a href="/admin/add-product" class="btn">Add Product</a>
                         <% } %>

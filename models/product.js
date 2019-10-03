@@ -7,6 +7,10 @@ const productSchema = new Schema({
     type: String,
     required: true
   },
+  handle: {
+    type: String,
+    required: true
+  },
   price: {
     type: Number,
     required: true
@@ -22,6 +26,11 @@ const productSchema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
+    required: true
+  },
+  collectionId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Collection',
     required: true
   }
 });

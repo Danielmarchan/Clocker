@@ -4,44 +4,64 @@
 </head>
 
 <body>
-   <%- include('../includes/navigation.ejs') %>
+   <%- include('../includes/admin-nav.ejs') %>
 
     <main>
+        <h1 class="under-left"><%= pageTitle %></h1>
+
         <% if (errorMessage) { %>
             <div class="user-message user-message--error"><%= errorMessage %></div>
         <% } %>
         <form class="product-form" action="/admin/<% if (editing) { %>edit-product<% } else { %>add-product<% } %>" method="POST" enctype="multipart/form-data">
             <div class="form-control">
-                <label for="title">Title</label>
                 <input
+                    placeholder="Title"
                     class="<%= validationErrors.find(e => e.param === 'title') ? 'invalid' : '' %>"
                     type="text"
                     name="title"
                     id="title"
                     value="<% if (editing || hasError) { %><%= product.title %><% } %>">
             </div>
-            <!-- <div class="form-control">
+            <div class="form-control">
                 <label for="collection">Collection</label>
                 <select
                     class="<%= validationErrors.find(e => e.param === 'collection') ? 'invalid' : '' %>"
                     type="text"
                     name="collection"
                     id="collection"
-                    value="<% if (editing || hasError) { %><%= product.collection %><% } %>">
+                >
+                    <option value="All">All</option>
+                    <% collections.forEach( collection => { %>
+                        <% if (collection._id == '5d9401dadd19da97d06306c6') { %>
+                        <% } else {%>
+                            <option
 
-                    <option value=""></option>
+                            <% if (editing || hasError) { %>
+                                <% if (product.collectionId.toString() == collection._id.toString()) { %>
+                                    selected="selected"
+                                <% } %>
+                            <% } %>
+                                value="<%= collection._id %>"
+                            ><%= collection.title %></option>
+                        <% } %>
+                    <% }); %>
                 </select>
-            </div> -->
-            <div class="form-control">
+            </div>
+            <div class="form-control image-selector">
                 <label for="image">Image</label>
-                <input
-                    type="file"
-                    name="image"
-                    id="image" >
+                <div class="d-flex">
+                    <% if (editing || hasError && product.imageUrl) { %>
+                        <img src="/<%= product.imageUrl.replace('\\', '/') %>" alt="<%= product.title %>">
+                    <% } %>
+                    <input
+                        type="file"
+                        name="image"
+                        id="image" >
+                </div>
             </div>
             <div class="form-control">
-                <label for="price">Price</label>
                 <input
+                    placeholder="Price"
                     class="<%= validationErrors.find(e => e.param === 'price') ? 'invalid' : '' %>"
                     type="number"
                     name="price"
@@ -50,8 +70,8 @@
                     value="<% if (editing || hasError) { %><%= product.price %><% } %>">
             </div>
             <div class="form-control">
-                <label for="description">Description</label>
                 <textarea
+                    placeholder="Description"
                     class="<%= validationErrors.find(e => e.param === 'description') ? 'invalid' : '' %>"
                     name="description"
                     id="description"

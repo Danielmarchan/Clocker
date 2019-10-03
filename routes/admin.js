@@ -11,7 +11,7 @@ const router = express.Router();
 // /admin/add-product => GET
 router.get('/add-product', isAuth, adminController.getAddProduct);
 
-// /admin/products => GET
+// /admin/ => GET
 router.get('/', isAuth, adminController.getProducts);
 
 // /admin/add-product => POST
@@ -36,11 +36,9 @@ router.post(
   [
     body('title')
       .isString()
-      .isLength({ min: 3 })
       .trim(),
     body('price').isFloat(),
     body('description')
-      .isLength({ min: 5, max: 400 })
       .trim()
   ],
   isAuth,
@@ -48,5 +46,22 @@ router.post(
 );
 
 router.delete('/product/:productId', isAuth, adminController.deleteProduct);
+
+// /admin/collections => GET
+router.get('/collections', isAuth, adminController.getCollections);
+
+// /admin/add-product => POST
+router.post(
+  '/add-collection',
+  [
+    body('title')
+      .isString()
+      .trim()
+  ],
+  isAuth,
+  adminController.postAddCollection
+);
+
+router.delete('/collections/:collectionId', isAuth, adminController.deleteCollection);
 
 module.exports = router;

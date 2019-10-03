@@ -6,10 +6,13 @@ const stripe = require('stripe')('sk_test_4eC39HqLyjWDarjtT1zdp7dc');
 
 const Product = require('../models/product');
 const Order = require('../models/order');
+const Collection = require('../models/collection');
+
+const mongoose = require('mongoose');
 
 const ITEMS_PER_PAGE = 2;
 
-exports.getProducts = (req, res, next) => {
+exports.getShopAll = (req, res, next) => {
   const page = +req.query.page || 1;
   let totalItems;
 
@@ -40,6 +43,43 @@ exports.getProducts = (req, res, next) => {
       error.httpStatusCode = 500;
       return next(error);
     });
+};
+
+exports.getShopCollection = (req, res, next) => {
+  const page = +req.query.page || 1;
+  let totalItems;
+  const collectionHandle = req.params.collectionHandle;
+
+  Collection.findOne({handle: collectionHandle})
+  .then(collection => {
+      Product.find({collectionId: collection._id})
+        .countDocuments()
+        // .then(numProducts => {
+        //   totalItems = numProducts;
+        //   return Product.find()
+        //     .skip((page - 1) * ITEMS_PER_PAGE)
+        //     .limit(ITEMS_PER_PAGE);
+        // })
+        .then(products => {
+          res.render('shop/product-list', {
+            prods: products,
+            pageTitle: collection.title,
+            path: '/products',
+            currentPage: page,
+            hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+            hasPreviousPage: page > 1,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+          });
+        })
+  })
+  .catch(err => {
+    const error = new Error(err);
+    console.log(err);
+    error.httpStatusCode = 500;
+    return next(error);
+  });
 };
 
 exports.getProduct = (req, res, next) => {
