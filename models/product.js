@@ -30,8 +30,7 @@ const productSchema = new Schema({
   },
   collectionId: {
     type: Schema.Types.ObjectId,
-    ref: 'Collection',
-    required: true
+    ref: 'Collection'
   }
 });
 

@@ -30,15 +30,16 @@
                     name="collection"
                     id="collection"
                 >
-                    <option value="All">All</option>
                     <% collections.forEach( collection => { %>
                         <% if (collection._id == '5d9401dadd19da97d06306c6') { %>
                         <% } else {%>
                             <option
 
                             <% if (editing || hasError) { %>
-                                <% if (product.collectionId.toString() == collection._id.toString()) { %>
-                                    selected="selected"
+                                <% if (product.collectionId) { %>
+                                    <% if (product.collectionId.toString() == collection._id.toString()) { %>
+                                        selected="selected"
+                                    <% } %>
                                 <% } %>
                             <% } %>
                                 value="<%= collection._id %>"

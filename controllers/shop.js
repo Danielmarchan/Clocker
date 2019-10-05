@@ -53,7 +53,7 @@ exports.getShopCollection = (req, res, next) => {
   Collection.findOne({handle: collectionHandle})
   .then(collection => {
       Product.find({collectionId: collection._id})
-        .countDocuments()
+        // .countDocuments()
         // .then(numProducts => {
         //   totalItems = numProducts;
         //   return Product.find()

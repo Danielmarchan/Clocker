@@ -11,7 +11,7 @@
   "author": "Maximilian Schwarzmüller",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^1.18.3"
+    "nodemon": "^1.19.3"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -25,14 +25,14 @@
     "express-session": "^1.15.6",
     "express-validator": "^5.3.0",
     "mongodb": "^3.1.6",
-    "mongoose": "^5.2.17",
+    "mongoose": "^5.7.3",
     "multer": "^1.4.0",
     "mysql2": "^1.6.1",
     "nodemailer": "^4.6.8",
     "nodemailer-sendgrid-transport": "^0.2.0",
     "pdfkit": "^0.8.3",
     "pug": "^2.0.3",
-    "sequelize": "^5.0.0-beta.11",
+    "sequelize": "^5.19.2",
     "stripe": "^7.9.0"
   }
 }

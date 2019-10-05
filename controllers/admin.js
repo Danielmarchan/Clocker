@@ -125,6 +125,39 @@ exports.postAddProduct = (req, res, next) => {
       .save()
       .then(result => {
           console.log('Created Product');
+
+          // ADD PRODUCT TO ALL
+          Collection.findById('5d9401dadd19da97d06306c6')
+          .then(collection => {
+              collection.products.push(product._id);
+              collection.save()
+              .then(result => {
+                  console.log('Added product to collection');
+              })
+          })
+          .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+          });
+        // ADD PRODUCT TO SELECTED COLLECTION
+          if (collectionId) {
+              Collection.findById(collectionId)
+              .then(collection => {
+                  collection.products.push(product._id);
+                  collection.save()
+                  .then(result => {
+                      console.log('Added product to collection');
+                  })
+              })
+              .catch(err => {
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(error);
+            });
+          }
+      })
+      .then(result => {
           res.redirect('/admin');
       })
       .catch(err => {
@@ -168,6 +201,7 @@ exports.postAddCollection = (req, res, next) => {
       const collection = new Collection({
         title: title,
         handle: handle,
+        products: [],
         userId: req.user
       });
       collection
@@ -215,12 +249,12 @@ exports.getEditProduct = (req, res, next) => {
             collections: collections,
             validationErrors: []
         })
-        .catch(err => {
-          const error = new Error(err);
-          error.httpStatusCode = 500;
-          return next(error);
-        });;
       })
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
     })
     .catch(err => {
       const error = new Error(err);
@@ -294,7 +328,7 @@ exports.postEditProduct = (req, res, next) => {
             product.collectionId = collectionId;
             if (image) {
               fileHelper.deleteFile(product.imageUrl);
-              product.imageUrl = image.path;
+              product.imageUrl = image.path
             }
             return product.save().then(result => {
               console.log('UPDATED PRODUCT!');
@@ -318,6 +352,8 @@ exports.postEditProduct = (req, res, next) => {
       if (product.userId.toString() !== req.user._id.toString()) {
         return res.redirect('/admin');
       }
+      const oldCollectionId = product.collectionId;
+
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
@@ -326,10 +362,49 @@ exports.postEditProduct = (req, res, next) => {
         fileHelper.deleteFile(product.imageUrl);
         product.imageUrl = image.path;
       }
+
+      // IF COLLECTION WAS CHANGED
+      if (oldCollectionId != collectionId && oldCollectionId) {
+
+          // REMOVE PRODUCT FROM OLD Collection
+          Collection.findById(oldCollectionId)
+          .then(collection => {
+              //console.log( collection );
+              collection.products = collection.products.filter(pId => pId.toString() !== prodId.toString());
+              console.log(collection)
+              collection.save()
+              .then(result => {
+                  console.log('Product Removed from old collection');
+              })
+          })
+          .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+          });
+
+          // ADD PRODUCT TO NEW COLLECTION
+          Collection.findById(collectionId)
+          .then(collection => {
+              collection.products.push(product._id);
+              collection.save()
+              .then(result => {
+                  console.log('Added product to collection');
+              })
+          })
+          .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+          });
+      }
+
       return product.save().then(result => {
         console.log('UPDATED PRODUCT!');
-        res.redirect('/admin');
-      });
+      })
+      .then(result => {
+          res.redirect('/admin');
+      })
     })
     .catch(err => {
       const error = new Error(err);
@@ -379,13 +454,49 @@ exports.getCollections = (req, res, next) => {
 
 exports.deleteProduct = (req, res, next) => {
   const prodId = req.params.productId;
+  let oldCollectionId;
   Product.findById(prodId)
     .then(product => {
       if (!product) {
         return next(new Error('Product not found.'));
       }
+      oldCollectionId = product.collectionId;
       fileHelper.deleteFile(product.imageUrl);
       return Product.deleteOne({ _id: prodId, userId: req.user._id });
+    })
+    .then(() => {
+        // DELETE PRODUCT FROM ALL
+        Collection.findById('5d9401dadd19da97d06306c6')
+        .then(collection => {
+            //console.log( collection );
+            collection.products = collection.products.filter(pId => pId.toString() !== prodId.toString());
+            console.log(collection)
+            collection.save()
+            .then(result => {
+                console.log('Product Removed from old collection');
+            })
+        })
+        .catch(err => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
+        // DELETE PRODUCT FROM OLD COLLECTION
+        Collection.findById(oldCollectionId)
+        .then(collection => {
+            //console.log( collection );
+            collection.products = collection.products.filter(pId => pId.toString() !== prodId.toString());
+            console.log(collection)
+            collection.save()
+            .then(result => {
+                console.log('Product Removed from old collection');
+            })
+        })
+        .catch(err => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
     })
     .then(() => {
       console.log('DESTROYED PRODUCT');

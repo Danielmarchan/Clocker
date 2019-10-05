@@ -14,7 +14,7 @@
                                 <div class="item product-item">
                                         <div class="item_image">
                                             <a href="/admin/edit-product/<%= product._id %>?edit=true">
-                                                <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
+                                                <img src="/<%= product.imageUrl.replace('\\', '/') %>" alt="<%= product.title %>">
                                             </a>
                                         </div>
                                         <div class="item_header">
