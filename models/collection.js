@@ -11,10 +11,7 @@ const collectionSchema = new Schema({
     type: String,
     required: true
   },
-  products: {
-      type: Array,
-      required: true
-  },
+  products: [{ type : Schema.Types.ObjectId, ref: 'Product' }],
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',

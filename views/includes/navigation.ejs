@@ -1,5 +1,5 @@
 <div class="top-bar">
-    Free Shipping Worldwides
+    Free Shipping Worldwide
 </div>
 <header class="top_header">
     <div class="logo_wrapper">
@@ -62,7 +62,7 @@
         <div class="cart_util">
             <a href="/cart">
                 <i class="fas fa-shopping-cart"></i>
-                <span class="cart_qty">(0)</span>
+                <span class="cart_qty">(<% if (cartQty) { %><%= cartQty %><% } else { %>0<% } %>)</span>
             </a>
         </div>
     </div>

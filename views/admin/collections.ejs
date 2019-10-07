@@ -1,5 +1,4 @@
 <%- include('../includes/head.ejs') %>
-    <link rel="stylesheet" href="/css/collection.css">
     </head>
 
     <body>
@@ -7,7 +6,11 @@
 
             <main>
 
-                <h1 class="under-left">Collections</h1>
+                <h1 class="under-center text-center">Collections</h1>
+
+                <% if (validationErrors.length > 0) { %>
+                    <div class="user-message user-message--error"><%= errorMessage %></div>
+                <% } %>
 
                 <% if (collections.length > 0) { %>
 

@@ -7,6 +7,7 @@ const { validationResult } = require('express-validator/check');
 
 const User = require('../models/user');
 
+
 const transporter = nodemailer.createTransport(
   sendgridTransport({
     auth: {
@@ -17,6 +18,12 @@ const transporter = nodemailer.createTransport(
 );
 
 exports.getLogin = (req, res, next) => {
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   let message = req.flash('error');
   if (message.length > 0) {
     message = message[0];
@@ -25,6 +32,7 @@ exports.getLogin = (req, res, next) => {
   }
   res.render('auth/login', {
     path: '/login',
+    cartQty: cartQty,
     pageTitle: 'Login',
     errorMessage: message,
     oldInput: {
@@ -36,6 +44,13 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.getSignup = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   let message = req.flash('error');
   if (message.length > 0) {
     message = message[0];
@@ -44,6 +59,7 @@ exports.getSignup = (req, res, next) => {
   }
   res.render('auth/signup', {
     path: '/signup',
+    cartQty: cartQty,
     pageTitle: 'Signup',
     errorMessage: message,
     oldInput: {
@@ -56,6 +72,13 @@ exports.getSignup = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   const email = req.body.email;
   const password = req.body.password;
 
@@ -63,6 +86,7 @@ exports.postLogin = (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(422).render('auth/login', {
       path: '/login',
+      cartQty: cartQty,
       pageTitle: 'Login',
       errorMessage: errors.array()[0].msg,
       oldInput: {
@@ -122,6 +146,12 @@ exports.postLogin = (req, res, next) => {
 };
 
 exports.postSignup = (req, res, next) => {
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   const email = req.body.email;
   const password = req.body.password;
 
@@ -131,6 +161,7 @@ exports.postSignup = (req, res, next) => {
     return res.status(422).render('auth/signup', {
       path: '/signup',
       pageTitle: 'Signup',
+      cartQty: cartQty,
       errorMessage: errors.array()[0].msg,
       oldInput: {
         email: email,
@@ -175,6 +206,12 @@ exports.postLogout = (req, res, next) => {
 };
 
 exports.getReset = (req, res, next) => {
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   let message = req.flash('error');
   if (message.length > 0) {
     message = message[0];
@@ -183,6 +220,7 @@ exports.getReset = (req, res, next) => {
   }
   res.render('auth/reset', {
     path: '/reset',
+    cartQty: cartQty,
     pageTitle: 'Reset Password',
     errorMessage: message
   });
@@ -226,6 +264,13 @@ exports.postReset = (req, res, next) => {
 };
 
 exports.getNewPassword = (req, res, next) => {
+
+    let cartQty = 0;
+
+    if (req.user) {
+      cartQty = req.user.cart.items.length;
+    }
+
   const token = req.params.token;
   User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
     .then(user => {
@@ -237,6 +282,7 @@ exports.getNewPassword = (req, res, next) => {
       }
       res.render('auth/new-password', {
         path: '/new-password',
+        cartQty: cartQty,
         pageTitle: 'New Password',
         errorMessage: message,
         userId: user._id.toString(),

@@ -1,6 +1,7 @@
 const path = require('path');
 
 const express = require('express');
+const { body } = require('express-validator/check');
 
 const shopController = require('../controllers/shop');
 const isAuth = require('../middleware/is-auth');
@@ -9,23 +10,25 @@ const router = express.Router();
 
 router.get('/', shopController.getIndex);
 
-router.get('/shop', shopController.getShopAll);
+router.get('/shop', (req, res, next) => {
+    res.redirect('/shop/all');
+});
 
 router.get('/shop/:collectionHandle', shopController.getShopCollection);
 
-router.get('/products/:productId', shopController.getProduct);
+router.get('/product/:productHandle', shopController.getProduct);
 
 router.get('/cart', isAuth, shopController.getCart);
 
 router.post('/cart', isAuth, shopController.postCart);
 
-router.post('/cart-delete-item', isAuth, shopController.postCartDeleteProduct);
+router.post('/cart/update', isAuth, shopController.postUpdateCart);
 
-router.get('/checkout', isAuth, shopController.getCheckout);
+router.delete('/cart-delete-item/:prodId', isAuth, shopController.deleteCartItem);
 
 router.get('/checkout/success', shopController.getCheckoutSuccess);
 
-router.get('/checkout/cancel', shopController.getCheckout);
+router.get('/checkout/cancel', shopController.getCheckoutCancel);
 
 
 router.get('/orders', isAuth, shopController.getOrders);

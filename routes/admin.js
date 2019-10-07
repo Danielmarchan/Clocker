@@ -55,6 +55,7 @@ router.post(
   '/add-collection',
   [
     body('title')
+      .not().isEmpty().withMessage('Must enter collection title')
       .isString()
       .trim()
   ],

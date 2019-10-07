@@ -7,11 +7,18 @@ const { validationResult } = require('express-validator/check');
 const Product = require('../models/product');
 const Collection = require('../models/collection');
 
+
 exports.getAddProduct = (req, res, next) => {
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
 
     Collection.find({ userId: req.user._id })
     .then(collections => {
       res.render('admin/edit-product', {
+        cartQty: cartQty,
         pageTitle: 'Add Product',
         path: '/admin/add-product',
         editing: false,
@@ -29,6 +36,13 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   const prodId = req.params.productId;
   const title = req.body.title;
   const image = req.file;
@@ -51,6 +65,7 @@ exports.postAddProduct = (req, res, next) => {
       return Collection.find({ userId: req.user._id })
       .then(collections => {
       return res.status(422).render('admin/edit-product', {
+        cartQty: cartQty,
         pageTitle: 'Edit Product',
         path: '/admin/edit-product',
         editing: false,
@@ -80,6 +95,7 @@ exports.postAddProduct = (req, res, next) => {
     return Collection.find({ userId: req.user._id })
     .then(collections => {
         return res.status(422).render('admin/edit-product', {
+          cartQty: cartQty,
           pageTitle: 'Edit Product',
           path: '/admin/edit-product',
           editing: false,
@@ -174,23 +190,50 @@ exports.postAddProduct = (req, res, next) => {
 };
 
 exports.postAddCollection = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   const title = req.body.title;
   let handle = title.replace(/[\W_]+/g,"-").toLowerCase();
 
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    console.log(errors.array());
-    return res.status(422).render('admin/collections', {
-      pageTitle: 'Admin Collections',
-      path: '/admin/add-collections',
-      hasError: true,
-      collection: {
-        title: title
-      },
-      errorMessage: errors.array()[0].msg,
-      validationErrors: errors.array()
-    });
+
+      console.log(errors.array());
+
+      Collection.find({ userId: req.user._id })
+        // .select('title price -_id')
+        // .populate('userId', 'name')
+        .then(collections => {
+          console.log(collections);
+          res.status(422).render('admin/collections', {
+            cartQty: cartQty,
+            collections: collections,
+            hasError: true,
+            pageTitle: 'Admin Collections',
+            path: '/admin/collections',
+            collection: {
+              title: title
+            },
+            errorMessage: errors.array()[0].msg,
+            validationErrors: errors.array()
+          });
+        })
+        .catch(err => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
+    // return res.status(422).render('admin/collections', {
+    //      cartQty: cartQty,
+    //   pageTitle: 'Admin Collections',
+    //   path: '/admin/add-collections',
+    // });
   }
 
   Collection.find({ userId: req.user._id })
@@ -225,6 +268,13 @@ exports.postAddCollection = (req, res, next) => {
 };
 
 exports.getEditProduct = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   const editMode = req.query.edit;
   if (!editMode) {
     return res.redirect('/admin');
@@ -240,6 +290,7 @@ exports.getEditProduct = (req, res, next) => {
       .then(collections => {
 
       res.render('admin/edit-product', {
+            cartQty: cartQty,
             pageTitle: 'Edit Product',
             path: '/admin/edit-product',
             editing: editMode,
@@ -264,6 +315,13 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.postEditProduct = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
@@ -287,6 +345,7 @@ exports.postEditProduct = (req, res, next) => {
     Collection.find({ userId: req.user._id })
     .then(collections => {
     return res.status(422).render('admin/edit-product', {
+      cartQty: cartQty,
       pageTitle: 'Edit Product',
       path: '/admin/edit-product',
       editing: true,
@@ -353,7 +412,7 @@ exports.postEditProduct = (req, res, next) => {
         return res.redirect('/admin');
       }
       const oldCollectionId = product.collectionId;
-
+      console.log(oldCollectionId);
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
@@ -369,7 +428,7 @@ exports.postEditProduct = (req, res, next) => {
           // REMOVE PRODUCT FROM OLD Collection
           Collection.findById(oldCollectionId)
           .then(collection => {
-              //console.log( collection );
+              console.log( collection );
               collection.products = collection.products.filter(pId => pId.toString() !== prodId.toString());
               console.log(collection)
               collection.save()
@@ -414,12 +473,20 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   Product.find({ userId: req.user._id })
     // .select('title price -_id')
     // .populate('userId', 'name')
     .then(products => {
       console.log(products);
       res.render('admin/products', {
+        cartQty: cartQty,
         prods: products,
         pageTitle: 'Admin Products',
         path: '/admin'
@@ -433,12 +500,20 @@ exports.getProducts = (req, res, next) => {
 };
 
 exports.getCollections = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   Collection.find({ userId: req.user._id })
     // .select('title price -_id')
     // .populate('userId', 'name')
     .then(collections => {
       console.log(collections);
       res.render('admin/collections', {
+        cartQty: cartQty,
         collections: collections,
         pageTitle: 'Admin Collections',
         path: '/admin/collections',
@@ -453,6 +528,13 @@ exports.getCollections = (req, res, next) => {
 };
 
 exports.deleteProduct = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   const prodId = req.params.productId;
   let oldCollectionId;
   Product.findById(prodId)

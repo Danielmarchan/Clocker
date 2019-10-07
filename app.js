@@ -53,6 +53,7 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
 );
@@ -93,7 +94,7 @@ app.use((req, res, next) => {
     });
 });
 
-app.post('/create-order', isAuth, shopController.postOrder);
+// app.post('/create-order', isAuth, shopController.postOrder);
 
 app.use(csrfProtection);
 app.use((req, res, next) => {
@@ -114,6 +115,7 @@ app.use((error, req, res, next) => {
   // res.redirect('/500');
   console.log(error);
   res.status(500).render('500', {
+    cartQty: '',
     pageTitle: 'Error!',
     path: '/500',
     isAuthenticated: res.locals.isAuthenticated,

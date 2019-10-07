@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PDFDocument = require('pdfkit');
-const stripe = require('stripe')('sk_test_4eC39HqLyjWDarjtT1zdp7dc');
+const stripe = require('stripe')('sk_test_CTa64P6Ftvxew7R6QcfDoCYi00nXEn18Z0');
 
 const Product = require('../models/product');
 const Order = require('../models/order');
@@ -10,60 +10,36 @@ const Collection = require('../models/collection');
 
 const mongoose = require('mongoose');
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 8;
 
-exports.getShopAll = (req, res, next) => {
-  const page = +req.query.page || 1;
-  let totalItems;
-
-  Product.find()
-    .countDocuments()
-    .then(numProducts => {
-      totalItems = numProducts;
-      return Product.find()
-        .skip((page - 1) * ITEMS_PER_PAGE)
-        .limit(ITEMS_PER_PAGE);
-    })
-    .then(products => {
-      res.render('shop/product-list', {
-        prods: products,
-        pageTitle: 'Products',
-        path: '/products',
-        currentPage: page,
-        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-        hasPreviousPage: page > 1,
-        nextPage: page + 1,
-        previousPage: page - 1,
-        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
-      });
-    })
-    .catch(err => {
-      const error = new Error(err);
-      console.log(err);
-      error.httpStatusCode = 500;
-      return next(error);
-    });
-};
 
 exports.getShopCollection = (req, res, next) => {
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   const page = +req.query.page || 1;
   let totalItems;
   const collectionHandle = req.params.collectionHandle;
 
   Collection.findOne({handle: collectionHandle})
+  .populate('products')
   .then(collection => {
-      Product.find({collectionId: collection._id})
-        // .countDocuments()
-        // .then(numProducts => {
-        //   totalItems = numProducts;
-        //   return Product.find()
-        //     .skip((page - 1) * ITEMS_PER_PAGE)
-        //     .limit(ITEMS_PER_PAGE);
-        // })
-        .then(products => {
+      console.log(collection);
+      const totalItems = collection.products.length;
+      const beginningIndex = (page - 1) * ITEMS_PER_PAGE;
+      const endingIndex = beginningIndex + ITEMS_PER_PAGE;
+      const productsToDisplay = collection.products.slice(beginningIndex, endingIndex);
+
+      Collection.find()
+      .then(collections => {
           res.render('shop/product-list', {
-            prods: products,
+            cartQty: cartQty,
+            prods: productsToDisplay,
             pageTitle: collection.title,
+            collections: collections,
             path: '/products',
             currentPage: page,
             hasNextPage: ITEMS_PER_PAGE * page < totalItems,
@@ -72,7 +48,13 @@ exports.getShopCollection = (req, res, next) => {
             previousPage: page - 1,
             lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
           });
-        })
+      })
+      .catch(err => {
+        const error = new Error(err);
+        console.log(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   })
   .catch(err => {
     const error = new Error(err);
@@ -83,10 +65,16 @@ exports.getShopCollection = (req, res, next) => {
 };
 
 exports.getProduct = (req, res, next) => {
-  const prodId = req.params.productId;
-  Product.findById(prodId)
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+  const productHandle = req.params.productHandle;
+  Product.findOne({handle: productHandle})
     .then(product => {
       res.render('shop/product-detail', {
+        cartQty: cartQty,
         product: product,
         pageTitle: product.title,
         path: '/products'
@@ -100,47 +88,65 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  const page = +req.query.page || 1;
-  let totalItems;
+  let cartQty = 0;
 
-  Product.find()
-    .countDocuments()
-    .then(numProducts => {
-      totalItems = numProducts;
-      return Product.find()
-        .skip((page - 1) * ITEMS_PER_PAGE)
-        .limit(ITEMS_PER_PAGE);
-    })
-    .then(products => {
-      res.render('shop/index', {
-        prods: products,
-        pageTitle: 'Shop',
-        path: '/',
-        currentPage: page,
-        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-        hasPreviousPage: page > 1,
-        nextPage: page + 1,
-        previousPage: page - 1,
-        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
-      });
-    })
-    .catch(err => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
-    });
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+  res.render('shop/index', {
+    cartQty: cartQty,
+    pageTitle: 'Clocker - Exceptionally Crafted Watches. Fairly Priced.',
+    path: '/'
+  });
 };
 
 exports.getCart = (req, res, next) => {
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
+  let products;
+  let total = 0;
+
   req.user
     .populate('cart.items.productId')
     .execPopulate()
     .then(user => {
-      const products = user.cart.items;
+      products = user.cart.items;
+      products.forEach(p => {
+        total += p.quantity * p.productId.price;
+      });
+      if (products.length > 0) {
+        return stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          line_items: products.map(p => {
+            return {
+              name: p.productId.title,
+              description: p.productId.description,
+              amount: p.productId.price * 100,
+              currency: 'usd',
+              quantity: p.quantity
+            };
+          }),
+          success_url: 'http://localhost:3000/checkout/success',
+          cancel_url: 'http://localhost:3000/checkout/cancel'
+        });
+      }
+      else {
+        return {id: ''};
+      }
+    })
+    .then(session => {
+      console.log(session);
       res.render('shop/cart', {
+        cartQty: cartQty,
         path: '/cart',
-        pageTitle: 'Your Cart',
-        products: products
+        pageTitle: 'Cart',
+        products: products,
+        totalSum: total,
+        sessionId: session.id
       });
     })
     .catch(err => {
@@ -150,8 +156,20 @@ exports.getCart = (req, res, next) => {
     });
 };
 
+exports.getCheckoutCancel = (req, res, next) => {
+  res.redirect('/cart');
+};
+
 exports.postCart = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   const prodId = req.body.productId;
+
   Product.findById(prodId)
     .then(product => {
       return req.user.addToCart(product);
@@ -167,58 +185,44 @@ exports.postCart = (req, res, next) => {
     });
 };
 
-exports.postCartDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
+exports.postUpdateCart = (req, res, next) => {
+
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
+  const updatedCart = req.body.updatedCart;
+
+  let validateQty = true;
+
+  updatedCart.items.forEach(item => {
+    if (item.quantity < 1) {
+      validateQty = false;
+    }
+  });
+
+  if (validateQty) {
+    req.user.cart = updatedCart;
+    req.user.save()
+    .then(result => {
+      return res.redirect('/cart');
+    })
+  }
+  else {
+    return res.redirect('/cart');
+  }
+}
+
+exports.deleteCartItem = (req, res, next) => {
+  const prodId = req.params.prodId;
   req.user
     .removeFromCart(prodId)
     .then(result => {
       res.redirect('/cart');
     })
     .catch(err => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
-    });
-};
-
-exports.getCheckout = (req, res, next) => {
-  let products;
-  let total = 0;
-  req.user
-    .populate('cart.items.productId')
-    .execPopulate()
-    .then(user => {
-      products = user.cart.items;
-      products.forEach(p => {
-        total += p.quantity * p.productId.price;
-      });
-      return stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: products.map(p => {
-          return {
-            name: p.productId.title,
-            description: p.productId.description,
-            amount: p.productId.price * 100,
-            currency: 'usd',
-            quantity: p.quantity
-          };
-        }),
-        success_url: 'http://localhost:3000/checkout/success',
-        cancel_url: 'http://localhost:3000/checkout/cancel'
-      });
-    })
-    .then(session => {
-      console.log(session);
-      res.render('shop/checkout', {
-        path: '/checkout',
-        pageTitle: 'Checkout',
-        products: products,
-        totalSum: total,
-        sessionId: session.id
-      });
-    })
-    .catch(err => {
-      console.log(err);
       const error = new Error(err);
       error.httpStatusCode = 500;
       return next(error);
@@ -261,59 +265,74 @@ exports.getCheckoutSuccess = (req, res, next) => {
     });
 };
 
-exports.postOrder = (req, res, next) => {
-  // Token is created using Checkout or Elements!
-  // Get the payment token ID submitted by the form:
-  const token = req.body.stripeToken; // Using Express
-  let totalSum = 0;
-
-  req.user
-    .populate('cart.items.productId')
-    .execPopulate()
-    .then(user => {
-      user.cart.items.forEach(p => {
-        totalSum += p.quantity * p.productId.price;
-      });
-
-      const products = user.cart.items.map(i => {
-        return { quantity: i.quantity, product: { ...i.productId._doc } };
-      });
-      const order = new Order({
-        user: {
-          email: req.user.email,
-          userId: req.user
-        },
-        products: products
-      });
-      return order.save();
-    })
-    .then(result => {
-      const charge = stripe.charges.create({
-        amount: totalSum * 100,
-        currency: 'usd',
-        description: 'Demo Order',
-        source: token,
-        metadata: { order_id: result._id.toString() }
-      });
-      return req.user.clearCart();
-    })
-    .then(() => {
-      res.redirect('/orders');
-    })
-    .catch(err => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
-    });
-};
+// exports.postOrder = (req, res, next) => {
+//   // Token is created using Checkout or Elements!
+//   // Get the payment token ID submitted by the form:
+//   const token = req.body.stripeToken; // Using Express
+//   let totalSum = 0;
+//
+//   req.user
+//     .populate('cart.items.productId')
+//     .execPopulate()
+//     .then(user => {
+//       user.cart.items.forEach(p => {
+//         totalSum += p.quantity * p.productId.price;
+//       });
+//
+//       const products = user.cart.items.map(i => {
+//         return { quantity: i.quantity, product: { ...i.productId._doc } };
+//       });
+//       const order = new Order({
+//         user: {
+//           email: req.user.email,
+//           userId: req.user
+//         },
+//         products: products
+//       });
+//       return order.save();
+//     })
+//     .then(result => {
+//       const charge = stripe.charges.create({
+//         amount: totalSum * 100,
+//         currency: 'usd',
+//         description: 'Demo Order',
+//         source: token,
+//         metadata: { order_id: result._id.toString() }
+//       });
+//       return req.user.clearCart();
+//     })
+//     .then(() => {
+//       res.redirect('/orders');
+//     })
+//     .catch(err => {
+//       const error = new Error(err);
+//       error.httpStatusCode = 500;
+//       return next(error);
+//     });
+// };
 
 exports.getOrders = (req, res, next) => {
+  let cartQty = 0;
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+  }
+
   Order.find({ 'user.userId': req.user._id })
     .then(orders => {
+      const ordersWithTotal = orders.map(order => {
+        let total = 0;
+        order.products.forEach(orderLineItem => {
+          total += orderLineItem.product.price * orderLineItem.quantity;
+        })
+        order.total = total;
+        return order;
+      });
       res.render('shop/orders', {
+        cartQty: cartQty,
         path: '/orders',
         pageTitle: 'Your Orders',
-        orders: orders
+        orders: ordersWithTotal
       });
     })
     .catch(err => {
@@ -324,6 +343,7 @@ exports.getOrders = (req, res, next) => {
 };
 
 exports.getInvoice = (req, res, next) => {
+
   const orderId = req.params.orderId;
   Order.findById(orderId)
     .then(order => {

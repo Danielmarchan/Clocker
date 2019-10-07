@@ -1,40 +1,51 @@
 <%- include('../includes/head.ejs') %>
-    <link rel="stylesheet" href="/css/product.css">
-    </head>
+</head>
 
-    <body>
-        <%- include('../includes/navigation.ejs') %>
-            <main>
-                <% if (prods.length > 0) { %>
-                    <div class="grid">
-                        <% for (let product of prods) { %>
-                            <article class="card product-item">
-                                <header class="card__header">
-                                    <h1 class="product__title"><%= product.title %></h1>
-                                </header>
-                                <div class="card__image">
-                                    <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
-                                </div>
-                                <div class="card__content">
-                                    <h2 class="product__price">$
-                                        <%= product.price %>
-                                    </h2>
-                                    <p class="product__description">
-                                        <%= product.description %>
-                                    </p>
-                                </div>
-                                <div class="card__actions">
-                                    <a href="/products/<%= product._id %>" class="btn">Details</a>
-                                    <% if (isAuthenticated) { %>
-                                        <%- include('../includes/add-to-cart.ejs', {product: product}) %>
-                                    <% } %>
-                                </div>
-                            </article>
-                            <% } %>
-                    </div>
-                    <%- include('../includes/pagination.ejs', {currentPage: currentPage, nextPage: nextPage, previousPage: previousPage, lastPage: lastPage, hasNextPage: hasNextPage, hasPreviousPage: hasPreviousPage}) %>
-                    <% } else { %>
-                        <h1>No Products Found!</h1>
-                        <% } %>
-            </main>
-            <%- include('../includes/end.ejs') %>
+<body>
+<%- include('../includes/navigation.ejs') %>
+<main>
+<% if (prods.length > 0) { %>
+  <div class="shop-header">
+    <h1 class="under-center"><%= pageTitle %></h1>
+  </div>
+  <div class="shop-layout">
+    <div class="shop-collections">
+        <h3 class="under-left">Collections</h3>
+        <ul class="shop-collection-list">
+          <li><a href="/shop/all">All</a></li>
+          <% if (collections.length > 1) { %>
+            <% collections.forEach( collection => { %>
+              <% if (collection.handle !== 'all') {  %>
+                  <li><a href="/shop/<%= collection.handle %>"><%= collection.title %></a></li>
+              <% } %>
+            <% }); %>
+          <% } %>
+        </ul>
+    </div>
+    <div class="shop-products">
+      <% if (prods.length > 0) { %>
+        <div class="shop-product-list">
+          <% prods.forEach( product => { %>
+            <div class="product-card">
+              <div class="product-card-content">
+                 <a href="/product/<%= product.handle %>">
+                    <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
+                    <h4><%= product.title %></h4>
+                 </a>
+                 <p class="price">$<%= product.price %></p>
+              </div>
+              <%- include('../includes/add-to-cart.ejs', {product: product}) %>
+            </div>
+          <% }); %>
+        </div>
+        <%- include('../includes/pagination.ejs', {currentPage: currentPage, nextPage: nextPage, previousPage: previousPage, lastPage: lastPage, hasNextPage: hasNextPage, hasPreviousPage: hasPreviousPage}) %>
+    <% } else { %>
+      <h2>No products in this collection</h2>
+    <% } %>
+  </div>
+
+  <% } else { %>
+      <h1>No Products Found!</h1>
+  <% } %>
+</main>
+<%- include('../includes/end.ejs') %>
