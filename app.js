@@ -8,6 +8,8 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
+const helmet = require('helmet');
+const compression = require('compression');
 
 const errorController = require('./controllers/error');
 const shopController = require('./controllers/shop');
@@ -69,6 +71,8 @@ app.use(
 );
 
 app.use(flash());
+app.use(helmet());
+app.use(compression());
 
 app.use((req, res, next) => {
 
