@@ -1,14 +1,14 @@
 {
-  "name": "nodejs-complete-guide",
+  "name": "clocker",
   "version": "1.0.0",
-  "description": "Complete Node.js Guide",
+  "description": "Clocker",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js",
+    "dev": "nodemon app.js",
     "start-server": "node app.js"
   },
-  "author": "Maximilian Schwarzmüller",
+  "author": "Daniel Marchan",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^1.19.3"

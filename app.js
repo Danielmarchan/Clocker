@@ -15,7 +15,7 @@ const isAuth = require('./middleware/is-auth');
 const User = require('./models/user');
 
 const MONGODB_URI =
-  'mongodb+srv://daniel:Mis7Datos9@danielcluster-ms0hm.mongodb.net/Shop?';
+  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@danielcluster-ms0hm.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?`;
 
 const app = express();
 const store = new MongoDBStore({
