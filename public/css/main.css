@@ -594,7 +594,7 @@ header.header_dark {
     text-decoration: none;
 }
 .list.users .item_header {
-    width: 100px;
+    width: 300px;
 }
 .header_utils > div {
     display: flex;
