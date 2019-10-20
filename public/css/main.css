@@ -190,7 +190,7 @@ li.nav_link a:hover {
 .cart_util a:hover {
     color: #d7b740;
 }
-.account_util {
+.account_util:hover {
     position: relative;
 }
 .account_util i {
@@ -221,6 +221,9 @@ li.nav_link a:hover {
     text-align: center;
     padding: 10px;
     text-transform: uppercase;
+}
+.email-mobile {
+  display: none;
 }
 
 /* FOOTER */
@@ -600,7 +603,6 @@ header.header_dark {
 .header_dark .user-email {
     color: white;
 }
-
 /* RESPONSIVENESS */
 /* MIN WIDTH */
 
@@ -616,7 +618,7 @@ header.header_dark {
     grid-template-columns: 1fr;
   }
 }
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .mobile_only {
         display: initial;
     }
@@ -625,13 +627,14 @@ header.header_dark {
     }
     .header_utils {
         order: 1;
+        margin-left: auto;
     }
     .hamburguer_menu {
         font-size: 1.25rem;
     }
     .nav_wrapper {
         order: 2;
-        margin: 0 0 0 auto;
+        margin: 0;
         padding: 0;
     }
     .nav_links_wrapper {
@@ -759,6 +762,13 @@ header.header_dark {
     }
     .under-left:after {
       margin: 10px auto 0 auto;
+    }
+    .user-email {
+      display: none !important;
+    }
+    .email-mobile {
+      display: block;
+      text-align: center;
     }
 }
 @media (max-width: 576px) {
