@@ -770,6 +770,9 @@ header.header_dark {
       display: block;
       text-align: center;
     }
+    .item_header h2 {
+      text-align: center;
+    }
 }
 @media (max-width: 576px) {
   .shop-product-list {
