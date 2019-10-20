@@ -12,16 +12,20 @@ const transporter = nodemailer.createTransport(
   sendgridTransport({
     auth: {
       api_key:
-        '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'
+        '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'
     }
   })
 );
 
 exports.getLogin = (req, res, next) => {
-  let cartQty = 0;
+let cartQty = 0;
+let isAdmin = false
+let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   let message = req.flash('error');
@@ -39,16 +43,22 @@ exports.getLogin = (req, res, next) => {
       email: '',
       password: ''
     },
-    validationErrors: []
+    validationErrors: [],
+    isAdmin: isAdmin,
+    userEmail: userEmail
   });
 };
 
 exports.getSignup = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   let message = req.flash('error');
@@ -67,16 +77,22 @@ exports.getSignup = (req, res, next) => {
       password: '',
       confirmPassword: ''
     },
-    validationErrors: []
+    validationErrors: [],
+    isAdmin: isAdmin,
+    userEmail: userEmail
   });
 };
 
 exports.postLogin = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   const email = req.body.email;
@@ -93,7 +109,9 @@ exports.postLogin = (req, res, next) => {
         email: email,
         password: password
       },
-      validationErrors: errors.array()
+      validationErrors: errors.array(),
+      isAdmin: isAdmin,
+      userEmail: userEmail
     });
   }
 
@@ -108,7 +126,9 @@ exports.postLogin = (req, res, next) => {
             email: email,
             password: password
           },
-          validationErrors: []
+          validationErrors: [],
+          isAdmin: isAdmin,
+          userEmail: userEmail
         });
       }
       bcrypt
@@ -130,7 +150,9 @@ exports.postLogin = (req, res, next) => {
               email: email,
               password: password
             },
-            validationErrors: []
+            validationErrors: [],
+            isAdmin: isAdmin,
+            userEmail: userEmail
           });
         })
         .catch(err => {
@@ -147,9 +169,13 @@ exports.postLogin = (req, res, next) => {
 
 exports.postSignup = (req, res, next) => {
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   const email = req.body.email;
@@ -168,7 +194,9 @@ exports.postSignup = (req, res, next) => {
         password: password,
         confirmPassword: req.body.confirmPassword
       },
-      validationErrors: errors.array()
+      validationErrors: errors.array(),
+      isAdmin: isAdmin,
+      userEmail: userEmail
     });
   }
 
@@ -178,7 +206,8 @@ exports.postSignup = (req, res, next) => {
       const user = new User({
         email: email,
         password: hashedPassword,
-        cart: { items: [] }
+        cart: { items: [] },
+        isAdmin: false
       });
       return user.save();
     })
@@ -207,9 +236,13 @@ exports.postLogout = (req, res, next) => {
 
 exports.getReset = (req, res, next) => {
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   let message = req.flash('error');
@@ -222,7 +255,9 @@ exports.getReset = (req, res, next) => {
     path: '/reset',
     cartQty: cartQty,
     pageTitle: 'Reset Password',
-    errorMessage: message
+    errorMessage: message,
+    isAdmin: isAdmin,
+    userEmail: userEmail
   });
 };
 
@@ -247,11 +282,11 @@ exports.postReset = (req, res, next) => {
         res.redirect('/');
         transporter.sendMail({
           to: req.body.email,
-          from: 'shop@node-complete.com',
+          from: 'shop@clocker.com',
           subject: 'Password reset',
           html: `
             <p>You requested a password reset</p>
-            <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password.</p>
+            <p>Click this <a href="http://shopclocker.herokuapp.com/reset/${token}">link</a> to set a new password.</p>
           `
         });
       })
@@ -266,9 +301,13 @@ exports.postReset = (req, res, next) => {
 exports.getNewPassword = (req, res, next) => {
 
     let cartQty = 0;
+    let isAdmin = false;
+    let userEmail = "";
 
     if (req.user) {
       cartQty = req.user.cart.items.length;
+      isAdmin = req.user.isAdmin;
+      userEmail = req.user.email;
     }
 
   const token = req.params.token;
@@ -286,7 +325,9 @@ exports.getNewPassword = (req, res, next) => {
         pageTitle: 'New Password',
         errorMessage: message,
         userId: user._id.toString(),
-        passwordToken: token
+        passwordToken: token,
+        isAdmin: isAdmin,
+        userEmail: userEmail
       });
     })
     .catch(err => {

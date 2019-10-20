@@ -123,7 +123,9 @@ app.use((error, req, res, next) => {
     pageTitle: 'Error!',
     path: '/500',
     isAuthenticated: res.locals.isAuthenticated,
-    message: error.toString()
+    message: error.toString(),
+    isAdmin: false,
+    userEmail: ""
   });
 });
 

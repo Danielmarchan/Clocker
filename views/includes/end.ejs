@@ -7,9 +7,11 @@
       <li class="nav_link">
           <a href="/orders">Orders</a>
       </li>
+      <% if (isAdmin) {%>
       <li class="nav_link">
           <a href="/admin">Admin</a>
       </li>
+      <% } %>
     </ul>
   </div>
   <div class="footer-bottom text-center">

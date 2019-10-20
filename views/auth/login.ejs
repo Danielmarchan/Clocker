@@ -5,6 +5,8 @@
    <%- include('../includes/navigation.ejs') %>
 
     <main>
+
+      <div class="container">
         <% if (errorMessage) { %>
             <div class="user-message user-message--error"><%= errorMessage %></div>
         <% } %>
@@ -27,11 +29,18 @@
                     id="password"
                     value="<%= oldInput.password %>">
             </div>
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn" type="submit">Login</button>
-        </form>
-        <div class="centered">
-            <a href="/reset">Reset Password</a>
+        <div class="text-center">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn" type="submit">Login</button>
         </div>
+        </form>
+        <div class="text-center" style="margin-top: 25px;">
+            <p>Dont't have an account yet?</p>
+            <p><a href="/signup">Register</a></p>
+            <p>Forgot your password?</p>
+            <p><a href="/reset">Reset Password</a></p>
+        </div>
+      </div>
+
     </main>
 <%- include('../includes/end.ejs') %>

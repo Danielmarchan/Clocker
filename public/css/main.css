@@ -6,6 +6,9 @@
   box-sizing: border-box;
   font-family: 'Lato', sans-serif;
 }
+a {
+  color: #d7b740;
+}
 html {
     font-size: 16px;
 }
@@ -202,7 +205,7 @@ li.nav_link a:hover {
     right: 0;
     padding-top: 15px;
     background: #fff;
-
+    top: 45px;
 }
 .user_dropdown ul {
     list-style: none;
@@ -587,6 +590,16 @@ header.header_dark {
     color: #000;
     text-decoration: none;
 }
+.list.users .item_header {
+    width: 100px;
+}
+.header_utils > div {
+    display: flex;
+    align-items: center;
+}
+.header_dark .user-email {
+    color: white;
+}
 
 /* RESPONSIVENESS */
 /* MIN WIDTH */
@@ -717,6 +730,35 @@ header.header_dark {
     }
     .footer-nav {
       justify-content: center;
+    }
+    .list.products .item.product-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .list.products .item.product-item > div {
+        width: 100%;
+        padding: 10px 0;
+    }
+    .list.products .item_image img {
+        width: auto;
+        height: 150px;
+    }
+    .admin-top-btn {
+      display: block;
+      text-align: center;
+    }
+    .item.user-item {
+        flex-direction: column;
+    }
+    .item.user-item > div {
+        margin-bottom: 15px;
+    }
+    .under-left {
+      text-align: center;
+    }
+    .under-left:after {
+      margin: 10px auto 0 auto;
     }
 }
 @media (max-width: 576px) {

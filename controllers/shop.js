@@ -15,9 +15,13 @@ const ITEMS_PER_PAGE = 8;
 
 exports.getShopCollection = (req, res, next) => {
   let cartQty = 0;
+let isAdmin = false
+let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   const page = +req.query.page || 1;
@@ -46,7 +50,9 @@ exports.getShopCollection = (req, res, next) => {
             hasPreviousPage: page > 1,
             nextPage: page + 1,
             previousPage: page - 1,
-            lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+            lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+            isAdmin: isAdmin,
+            userEmail: userEmail
           });
       })
       .catch(err => {
@@ -66,9 +72,13 @@ exports.getShopCollection = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
   const productHandle = req.params.productHandle;
   Product.findOne({handle: productHandle})
@@ -77,7 +87,9 @@ exports.getProduct = (req, res, next) => {
         cartQty: cartQty,
         product: product,
         pageTitle: product.title,
-        path: '/products'
+        path: '/products',
+        isAdmin: isAdmin,
+        userEmail: userEmail
       });
     })
     .catch(err => {
@@ -89,22 +101,32 @@ exports.getProduct = (req, res, next) => {
 
 exports.getIndex = (req, res, next) => {
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
   res.render('shop/index', {
     cartQty: cartQty,
     pageTitle: 'Clocker - Exceptionally Crafted Watches. Fairly Priced.',
-    path: '/'
+    path: '/',
+    isAdmin: isAdmin,
+    userEmail: userEmail
   });
 };
 
 exports.getCart = (req, res, next) => {
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   let products;
@@ -146,7 +168,9 @@ exports.getCart = (req, res, next) => {
         pageTitle: 'Cart',
         products: products,
         totalSum: total,
-        sessionId: session.id
+        sessionId: session.id,
+        isAdmin: isAdmin,
+        userEmail: userEmail
       });
     })
     .catch(err => {
@@ -163,9 +187,13 @@ exports.getCheckoutCancel = (req, res, next) => {
 exports.postCart = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   const prodId = req.body.productId;
@@ -188,9 +216,13 @@ exports.postCart = (req, res, next) => {
 exports.postUpdateCart = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   const updatedCart = req.body.updatedCart;
@@ -313,9 +345,13 @@ exports.getCheckoutSuccess = (req, res, next) => {
 
 exports.getOrders = (req, res, next) => {
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   Order.find({ 'user.userId': req.user._id })
@@ -332,7 +368,9 @@ exports.getOrders = (req, res, next) => {
         cartQty: cartQty,
         path: '/orders',
         pageTitle: 'Your Orders',
-        orders: ordersWithTotal
+        orders: ordersWithTotal,
+        isAdmin: isAdmin,
+        userEmail: userEmail
       });
     })
     .catch(err => {

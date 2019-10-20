@@ -4,15 +4,16 @@ const express = require('express');
 const { body } = require('express-validator/check');
 
 const adminController = require('../controllers/admin');
-const isAuth = require('../middleware/is-auth');
+const isAuth = require('../middleware/is-auth').isAuth;
+const isAdmin = require('../middleware/is-auth').isAdmin;
 
 const router = express.Router();
 
 // /admin/add-product => GET
-router.get('/add-product', isAuth, adminController.getAddProduct);
+router.get('/add-product', isAuth, isAdmin, adminController.getAddProduct);
 
 // /admin/ => GET
-router.get('/', isAuth, adminController.getProducts);
+router.get('/', isAuth, isAdmin, adminController.getProducts);
 
 // /admin/add-product => POST
 router.post(
@@ -29,7 +30,11 @@ router.post(
   adminController.postAddProduct
 );
 
-router.get('/edit-product/:productId', isAuth, adminController.getEditProduct);
+router.get('/users', isAuth, isAdmin, adminController.getUsers);
+
+router.post('/users', isAuth, isAdmin, adminController.postChangeUserRole);
+
+router.get('/edit-product/:productId', isAuth, isAdmin, adminController.getEditProduct);
 
 router.post(
   '/edit-product',
@@ -42,13 +47,14 @@ router.post(
       .trim()
   ],
   isAuth,
+  isAdmin,
   adminController.postEditProduct
 );
 
-router.delete('/product/:productId', isAuth, adminController.deleteProduct);
+router.delete('/product/:productId', isAuth, isAdmin, adminController.deleteProduct);
 
 // /admin/collections => GET
-router.get('/collections', isAuth, adminController.getCollections);
+router.get('/collections', isAuth, isAdmin, adminController.getCollections);
 
 // /admin/add-product => POST
 router.post(
@@ -60,9 +66,10 @@ router.post(
       .trim()
   ],
   isAuth,
+  isAdmin,
   adminController.postAddCollection
 );
 
-router.delete('/collections/:collectionId', isAuth, adminController.deleteCollection);
+router.delete('/collections/:collectionId', isAuth, isAdmin, adminController.deleteCollection);
 
 module.exports = router;

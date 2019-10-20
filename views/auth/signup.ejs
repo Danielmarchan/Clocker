@@ -5,6 +5,7 @@
    <%- include('../includes/navigation.ejs') %>
 
     <main>
+      <div class="container">
         <% if (errorMessage) { %>
             <div class="user-message user-message--error"><%= errorMessage %></div>
         <% } %>
@@ -36,8 +37,15 @@
                     id="confirmPassword"
                     value="<%= oldInput.confirmPassword %>">
             </div>
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn" type="submit">Signup</button>
+            <div class="text-center">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn" type="submit">Signup</button>
+            </div>
         </form>
+        <div class="text-center">
+            <p>Already have an account?</p>
+            <p><a href="/login">Log In</a></p>          
+        </div>
+      </div>
     </main>
 <%- include('../includes/end.ejs') %>

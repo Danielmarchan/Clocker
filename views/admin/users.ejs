@@ -1,0 +1,44 @@
+<%- include('../includes/head.ejs') %>
+    </head>
+
+    <body>
+        <%- include('../includes/admin-nav.ejs') %>
+
+            <main>
+                <h1 class="under-center text-center">users</h1>
+                <% if (users.length > 0) { %>
+                  <div class="list users">
+                    <% for (let user of users) { %>
+                      <div class="item user-item">
+                          <div class="item_header">
+                              <h2 class="user_title">
+                                <%= user.email %>
+                              </h2>
+                          </div>
+                          <div class="item_content">
+                              <strong class="user_isadmin">
+                                  <% if (user.isAdmin) { %>
+                                    Admin
+                                  <% } else { %>
+                                    Customer
+                                  <% } %>
+                              </strong>
+                          </div>
+                          <div class="actions">
+                              <form class="" action="/admin/users" method="post">
+                                <input type="hidden" value="<%= user._id %>" name="userId">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <button class="btn sm-btn" type="submit">Change User Role</button>
+                              </form>
+                          </div>
+                        </div>
+                      <% } %>
+                    </div>
+                    <% } else { %>
+                        <h2>No users Found!</h2>
+
+                        <a href="/admin/add-user" class="btn">Add user</a>
+                        <% } %>
+            </main>
+            <%- include('../includes/end.ejs') %>
+            <script src="/js/admin.js"></script>

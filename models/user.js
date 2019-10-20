@@ -24,6 +24,10 @@ const userSchema = new Schema({
         quantity: { type: Number, required: true }
       }
     ]
+  },
+  isAdmin: {
+    type: Boolean,
+    required: true
   }
 });
 

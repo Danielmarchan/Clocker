@@ -6,16 +6,85 @@ const { validationResult } = require('express-validator/check');
 
 const Product = require('../models/product');
 const Collection = require('../models/collection');
+const User = require('../models/user');
 
 
-exports.getAddProduct = (req, res, next) => {
+exports.getUsers = (req, res, next) => {
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
-    Collection.find({ userId: req.user._id })
+  User.find()
+    .then(users => {
+      res.render('admin/users', {
+        cartQty: cartQty,
+        users: users,
+        pageTitle: 'Admin Users',
+        path: '/admin/users',
+        isAdmin: isAdmin,
+        userEmail: userEmail
+      });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.postChangeUserRole = (req, res, next) => {
+  const userId = req.body.userId
+
+  let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
+  }
+
+  if (userId.toString() == "5d8fd19242f0156038c9c912" || userId.toString() == req.user._id.toString()) {
+    return res.redirect('/admin/users');
+  }
+  else {
+    User.findById(userId)
+      .then(user => {
+        const updatedIsAdmin = !user.isAdmin;
+
+        user.isAdmin = updatedIsAdmin;
+        return user.save();
+      })
+      .then(result => {
+        res.redirect('/admin/users');
+      })
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
+  }
+};
+
+exports.getAddProduct = (req, res, next) => {
+  let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
+
+  if (req.user) {
+    cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
+  }
+
+    Collection.find()
     .then(collections => {
       res.render('admin/edit-product', {
         cartQty: cartQty,
@@ -25,7 +94,9 @@ exports.getAddProduct = (req, res, next) => {
         hasError: false,
         errorMessage: null,
         collections: collections,
-        validationErrors: []
+        validationErrors: [],
+        isAdmin: isAdmin,
+        userEmail: userEmail
       })
       .catch(err => {
         const error = new Error(err);
@@ -38,9 +109,13 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   const prodId = req.params.productId;
@@ -79,7 +154,9 @@ exports.postAddProduct = (req, res, next) => {
         },
         collections: collections,
         errorMessage: errors.array()[0].msg,
-        validationErrors: errors.array()
+        validationErrors: errors.array(),
+        isAdmin: isAdmin,
+        userEmail: userEmail
       });
 
       })
@@ -109,7 +186,9 @@ exports.postAddProduct = (req, res, next) => {
           },
           collections: collections,
           errorMessage: errors.array()[0].msg,
-          validationErrors: errors.array()
+          validationErrors: errors.array(),
+          isAdmin: isAdmin,
+          userEmail: userEmail
         });
 
     })
@@ -192,9 +271,13 @@ exports.postAddProduct = (req, res, next) => {
 exports.postAddCollection = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   const title = req.body.title;
@@ -221,7 +304,9 @@ exports.postAddCollection = (req, res, next) => {
               title: title
             },
             errorMessage: errors.array()[0].msg,
-            validationErrors: errors.array()
+            validationErrors: errors.array(),
+            isAdmin: isAdmin,
+            userEmail: userEmail
           });
         })
         .catch(err => {
@@ -270,9 +355,13 @@ exports.postAddCollection = (req, res, next) => {
 exports.getEditProduct = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   const editMode = req.query.edit;
@@ -298,7 +387,9 @@ exports.getEditProduct = (req, res, next) => {
             hasError: false,
             errorMessage: null,
             collections: collections,
-            validationErrors: []
+            validationErrors: [],
+            isAdmin: isAdmin,
+            userEmail: userEmail
         })
       })
       .catch(err => {
@@ -317,9 +408,13 @@ exports.getEditProduct = (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   const prodId = req.body.productId;
@@ -359,7 +454,9 @@ exports.postEditProduct = (req, res, next) => {
       },
       collections: collections,
       errorMessage: errors.array()[0].msg,
-      validationErrors: errors.array()
+      validationErrors: errors.array(),
+      isAdmin: isAdmin,
+      userEmail: userEmail
     });
 
     })
@@ -475,9 +572,13 @@ exports.postEditProduct = (req, res, next) => {
 exports.getProducts = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   Product.find({ userId: req.user._id })
@@ -489,7 +590,9 @@ exports.getProducts = (req, res, next) => {
         cartQty: cartQty,
         prods: products,
         pageTitle: 'Admin Products',
-        path: '/admin'
+        path: '/admin',
+        isAdmin: isAdmin,
+        userEmail: userEmail
       });
     })
     .catch(err => {
@@ -502,9 +605,13 @@ exports.getProducts = (req, res, next) => {
 exports.getCollections = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   Collection.find({ userId: req.user._id })
@@ -517,7 +624,9 @@ exports.getCollections = (req, res, next) => {
         collections: collections,
         pageTitle: 'Admin Collections',
         path: '/admin/collections',
-        validationErrors: []
+        validationErrors: [],
+        isAdmin: isAdmin,
+        userEmail: userEmail
       });
     })
     .catch(err => {
@@ -530,9 +639,13 @@ exports.getCollections = (req, res, next) => {
 exports.deleteProduct = (req, res, next) => {
 
   let cartQty = 0;
+  let isAdmin = false;
+  let userEmail = "";
 
   if (req.user) {
     cartQty = req.user.cart.items.length;
+    isAdmin = req.user.isAdmin;
+    userEmail = req.user.email;
   }
 
   const prodId = req.params.productId;

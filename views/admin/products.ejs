@@ -4,11 +4,11 @@
     <body>
         <%- include('../includes/admin-nav.ejs') %>
 
-            <main>
+            <main class="admin-products">
                 <h1 class="under-center text-center">Products</h1>
                 <% if (prods.length > 0) { %>
-                    <a href="/admin/add-product" class="btn">Add Product</a>
-                    <div class="list">
+                    <a href="/admin/add-product" class="btn admin-top-btn">Add Product</a>
+                    <div class="list products">
                         <% for (let product of prods) { %>
                                 <div class="item product-item">
                                         <div class="item_image">
